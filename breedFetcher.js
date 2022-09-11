@@ -1,27 +1,24 @@
 // Import the request library
 const request = require('request');
 
-// function that takes a cat name and returns the cat description 
-const findCats = function () {
-  // grab the string in the array of the user input
-  const input = process.argv.slice(2)[0]
+//function that takes a cat name and returns the cat description
+const fetchBreedDescription = function(breedName, callback) {
   // get data for cat breed based on user input
-  request(`https://api.thecatapi.com/v1/breeds/search?q=${input}`, (error, response, body) => {  
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {  
   if (error) {
-  console.log('error:', error);
-  } 
+  callback(error, null)
+    return;
+  }; 
   const catData = JSON.parse(body);
-  
+    // if cat isnt in requested data then log not found
+  if (catData.length === 0) {
+    callback('Breed not found', null);
+    return;
+  };
   // log cat description if found  
-  if (catData.length) {
-  console.log(catData[0].description)
-  };
-  // if cat isnt in requested data then log not found
-    if (catData.length === 0) {
-    console.log('Breed not found');
-  };
-});
-}; 
+  callback(null, catData[0].description)
+    return;
+    });
+  }; 
 
-findCats();
-
+module.exports = { fetchBreedDescription };
